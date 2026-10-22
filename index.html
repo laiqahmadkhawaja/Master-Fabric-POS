@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Al-Madina Fabrics – Wholesale POS & Raw Materials</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0d2347">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+  <!-- html2pdf for direct client-side high quality PDF exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- AUTHENTICATION VIEW -->
+  <div id="login-view" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-avatar">🧵</div>
+        <h1 class="ur brand-ur">المدینہ فیبرکس اینڈ ٹیکسٹائل ٹریڈنگ</h1>
+        <h2 class="brand-en">Al-Madina Fabrics & Textile Trading</h2>
+        <p class="brand-sub">Wholesale Fabric & Raw Material Merchants</p>
+      </div>
+
+      <div class="login-form">
+        <label for="login-user">Select Profile</label>
+        <select id="login-user" class="form-control"></select>
+
+        <label for="login-pin" style="margin-top:12px">Security PIN</label>
+        <input type="password" id="login-pin" class="form-control" placeholder="Enter PIN (e.g. 1234)" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')handleLogin()">
+
+        <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" onclick="handleLogin()">
+          <span>Unlock Terminal</span> →
+        </button>
+      </div>
+      <div class="login-footer">
+        <small>Fabric Trading Terminal • Offline-First Native Architecture</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP WRAPPER -->
+  <div id="app-container" class="app-container" style="display:none;">
+    
+    <!-- DESKTOP / TABLET SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🧵</div>
+        <div class="sidebar-brand-text">
+          <b class="sidebar-title">Al-Madina Fabrics</b>
+          <span class="sidebar-badge">Wholesale POS</span>
+        </div>
+      </div>
+
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebar-user-avatar">O</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Owner</div>
+          <small class="user-role" id="sidebar-user-role">Administrator</small>
+        </div>
+        <button class="btn-icon" title="Logout" onclick="handleLogout()">🚪</button>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+
+      <div class="sidebar-footer">
+        <div class="sync-indicator-card" id="sync-status-card" onclick="triggerManualSync()">
+          <span class="sync-dot" id="sync-dot"></span>
+          <div class="sync-text">
+            <b id="sync-status-text">Local Storage Online</b>
+            <small id="sync-subtext">Click to push backup</small>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT VIEWPORT -->
+    <main class="main-viewport">
+      
+      <!-- TOP STATUS BAR -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <h2 id="view-title" class="view-title">Dashboard</h2>
+            <span class="ur top-bar-ur">المدینہ فیبرکس اینڈ را میٹریل</span>
+          </div>
+        </div>
+
+        <div class="top-bar-right">
+          <div class="network-badge" id="network-badge">
+            <span class="network-dot"></span>
+            <span id="network-text">Online</span>
+          </div>
+          <div class="clock-chip" id="realtime-clock">--:--</div>
+        </div>
+      </header>
+
+      <!-- DYNAMIC CONTENT CONTAINER -->
+      <div id="content-area" class="content-area"></div>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION DOCK -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav"></nav>
+
+  </div>
+
+  <!-- INVOICE / DOCUMENT PREVIEW MODAL -->
+  <div id="document-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-doc-title">Document Preview</h3>
+          <small id="modal-doc-subtitle">Ready to print or share</small>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline btn-sm" onclick="closeDocModal()">✕ Close</button>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="doc-toolbar">
+        <div class="toolbar-group">
+          <label>Layout Size</label>
+          <select id="modal-doc-size" class="form-control form-control-sm" onchange="renderDocPreview()">
+            <option value="A4">A4 Full Bill</option>
+            <option value="A5">A5 Invoice / Challan</option>
+            <option value="80">80mm Thermal Receipt</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group">
+          <label>WhatsApp Number</label>
+          <input type="tel" id="modal-whatsapp-phone" class="form-control form-control-sm" placeholder="0300-1234567">
+        </div>
+
+        <div class="toolbar-buttons">
+          <button class="btn btn-primary btn-sm" onclick="executeDocPrint()">🖨 Print</button>
+          <button class="btn btn-warning btn-sm" onclick="executeDocPdfDownload()">⬇ Save PDF</button>
+          <button class="btn btn-success btn-sm" onclick="executeDocWhatsAppShare()">💬 Send WhatsApp</button>
+        </div>
+      </div>
+
+      <!-- Preview Scroller -->
+      <div class="doc-preview-wrapper" id="doc-preview-wrapper">
+        <div id="doc-preview-canvas" class="doc-preview-canvas"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT RENDERING STAGING AREA -->
+  <div id="print-stage" class="print-stage"></div>
+
+  <!-- APP LOGIC -->
+  <script src="app.js"></script>
+</body>
+</html>
